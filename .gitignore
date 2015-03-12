@@ -1,0 +1,5 @@
+# Archivos y carpetas de construccion
+build/
+nbproject/
+build.xml
+manifest.mf
