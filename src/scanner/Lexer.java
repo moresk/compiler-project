@@ -6,8 +6,8 @@ import java.util.ArrayList;
  * Analizador lexico.
  *
  * Obtiene una lista de tokens en base a una cadena de texto.
- * La cadena de texto debe estar formada, en forma cuerente,
- * por los siguientes simbolos: .;&|{}[]+-'::=0-0a-z
+ * La cadena de texto debe estar formada, en forma coherente,
+ * por los siguientes simbolos: .;&|{}[]+-'::=0-9a-z
  *
  * @author Mario
  * @version 1.0
