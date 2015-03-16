@@ -25,7 +25,7 @@ public class Scanner
      */
     public static void main(String[] args)
     {
-        for (Token token : Lexer.getTokens("a1b&|{}[]+-2::=c\';."))
+        for (Token token : Lexer.getTokens(".;&|{}[]()::='a'<a>"))
         {
             System.out.println(token.toString());
         }

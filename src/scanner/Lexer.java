@@ -7,7 +7,7 @@ import java.util.ArrayList;
  *
  * Obtiene una lista de tokens en base a una cadena de texto.
  * La cadena de texto debe estar formada, en forma coherente,
- * por los siguientes simbolos: .;&|{}[]+-'::=0-9a-z
+ * por los siguientes simbolos: . ; & | { } [ ] '' <> ::=
  *
  * @author Mario
  * @version 1.0
@@ -23,16 +23,10 @@ public class Lexer
      */
     public static ArrayList<Token> getTokens(String input)
     {
-        // Almacenamos la lista de tokens temporalmente.
+        // Almacena la lista de tokens temporalmente.
         ArrayList<Token> tokens = new ArrayList<>();
 
-        String completeVar = "";
-        boolean lexingVar = false;
-
-        String completeNum = "";
-        boolean lexingNum = false;
-
-        // Recorremos la cadena de texto, letra por letra.
+        // Recorre la cadena de texto, letra por letra.
         for (int i = 0; i < input.length(); i++)
         {
             // Si el caracter no coincide con ningun token:
@@ -44,48 +38,15 @@ public class Lexer
              && input.charAt(i) != Token.Type.LBC
              && input.charAt(i) != Token.Type.RBK
              && input.charAt(i) != Token.Type.LBK
-             && input.charAt(i) != Token.Type.PLUS
-             && input.charAt(i) != Token.Type.MIN
-             && input.charAt(i) != Token.Type.APOS)
+             && input.charAt(i) != Token.Type.RPS
+             && input.charAt(i) != Token.Type.LPS)
             {
-                // Verificamos que se trate de una definicion.
+                // Verifica que se trate de una definicion.
                 if (input.charAt(i) == ':'
+                 && (i + 2) <= input.length() // Asegura 3 caracteres.
                  && input.charAt(i + 1) == ':'
                  && input.charAt(i + 2) == '=')
                 {
-                    // Si estabamos analizando una letra:
-                    if (lexingVar == true)
-                    {
-                        // Quiere decir que terminamos de analizar la variable.
-                        lexingVar = false;
-
-                        // Agregamos la variable completa a la lista.
-                        tokens.add
-                        (   new Token
-                            (   Token.Type.VAR,
-                                completeVar
-                            )
-                        );
-
-                        completeVar = ""; // Evitamos acomulaciones.
-                    }
-                    // O si estabamos analiznado un numero:
-                    else if (lexingNum == true)
-                    {
-                        // Quiere decir que terminamos de analizar el numero.
-                        lexingNum = false;
-
-                        // Agregamos el numero completo a la lista.
-                        tokens.add
-                        (   new Token
-                            (   Token.Type.NUM,
-                                completeNum
-                            )
-                        );
-
-                        completeNum = ""; // Evitamos acomulaciones.
-                    }
-
                     // Agregamos el token a la lista.
                     tokens.add(new Token(Token.Type.DEF, "::="));
 
@@ -93,59 +54,67 @@ public class Lexer
                     // dos caracteres mas fueron "analizados" (':' '=').
                     i += 2;
                 }
-                // Si no: Verificamos que sea una letra:
-                else if (Character.isLetter(input.charAt(i)) == true)
+                // Si no: Verifica que sea un terminal:
+                else if (input.charAt(i) == '\''
+                      && input.indexOf('\'', i + 1) != -1)
                 {
-                    // Si estabamos analiznado un numero:
-                    if (lexingNum == true)
-                    {
-                        // Quiere decir que terminamos de analizar el numero.
-                        lexingNum = false;
+                    // Obtiene el index del proximo apostrofe.
+                    int ni = input.indexOf('\'', i + 1);
 
-                        // Agregamos el numero completo a la lista.
-                        tokens.add
-                        (   new Token
-                            (   Token.Type.NUM,
-                                completeNum
+                    // Agrega el token a la lista, con los apostrofes y
+                    // los caracteres dentro de estos como lexema.
+                    tokens.add
+                    (   new Token
+                        (   Token.Type.TERML,
+                            input.substring
+                            (   i,
+                                ni + 1
                             )
-                        );
+                        )
+                    );
 
-                        completeNum = ""; // Evitamos acomulaciones.
-                    }
-
-                    // Indicamos que estamos analizando una variable.
-                    lexingVar = true;
-
-                    // Agregamos la letra a la variable.
-                    completeVar =
-                        String.format("%s%s", completeVar, input.charAt(i));
+                    // El indice es incrementado hasta el ultimo simbolo \'
+                    // ya que no es necesario analizar lo que hay dentro.
+                    i = ni;
                 }
-                // Si no: Verificamos que sea un numero:
-                else if (Character.isDigit(input.charAt(i)) == true)
+                // Si no: Verifica que sea una variable:
+                else if (input.charAt(i) == '<'
+                      && input.indexOf('>', i + 1) != -1
+                      && (i + 1) < input.length() // Aseguramos 2 caracteres.
+                    // El primer caracter debe de ser letra.
+                      && Character.isLetter(input.charAt(i + 1)) == true)
                 {
-                    // Si estabamos analizando una letra:
-                    if (lexingVar == true)
+                    // Obtiene el index del proximo >.
+                    int ni = input.indexOf('>', i + 1);
+
+                    // Obtiene los simbolos <> y los caracteres dentro.
+                    String svar = input.substring(i, ni + 1);
+
+                    // Verifica que lo que hay dentro sean letras o numeros.
+                    for (int j = 1; j < svar.length() - 1; j++)
                     {
-                        // Quiere decir que terminamos de analizar la variable.
-                        lexingVar = false;
-
-                        // Agregamos la variable completa a la lista.
-                        tokens.add
-                        (   new Token
-                            (   Token.Type.VAR,
-                                completeVar
-                            )
-                        );
-
-                        completeVar = ""; // Evitamos acomulaciones.
+                        // Si no:
+                        if (Character.isDigit(svar.charAt(j)) != true
+                         && Character.isLetter(svar.charAt(j)) != true)
+                        {
+                            // Informamos sobre el error y en que columna esta.
+                            throw new Error
+                            (   String.format("Error lexico en columna: %d", i)
+                            );
+                        }
                     }
 
-                    // Indicamos que estamos analizando un numero.
-                    lexingNum = true;
+                    // Agrega el token a la lista.
+                    tokens.add
+                    (   new Token
+                        (   Token.Type.VAR,
+                            svar
+                        )
+                    );
 
-                    // Agregamos la letra como numero.
-                    completeNum =
-                        String.format("%s%s", completeNum, input.charAt(i));
+                    // El indice es incrementado hasta el ultimo simbolo >
+                    // ya que lo que hay dentro de los simbolos fue analizado.
+                    i = ni;
                 }
                 // Si no coincide en ninguno de los casos:
                 else
@@ -159,40 +128,7 @@ public class Lexer
             // Si el caracter coincide con algun token:
             else
             {
-                // Y estabamos analizando una letra:
-                if (lexingVar == true)
-                {
-                    // Quiere decir que terminamos de analizar la variable.
-                    lexingVar = false;
-
-                    // Agregamos la variable completa a la lista.
-                    tokens.add
-                    (   new Token
-                        (   Token.Type.VAR,
-                            completeVar
-                        )
-                    );
-
-                    completeVar = ""; // Limpiamos para evitar acomulaciones.
-                }
-                // O si estabamos analiznado un numero:
-                else if (lexingNum == true)
-                {
-                    // Quiere decir que terminamos de analizar el numero.
-                    lexingNum = false;
-
-                    // Agregamos el numero completo a la lista.
-                    tokens.add
-                    (   new Token
-                        (   Token.Type.NUM,
-                            completeNum
-                        )
-                    );
-
-                    completeNum = ""; // Evitamos acomulaciones.
-                }
-
-                // Agregamos a la lista de tokens.
+                // Lo agrega a la lista de tokens.
                 tokens.add
                 (   new Token
                     (   input.charAt(i),
@@ -202,6 +138,6 @@ public class Lexer
             }
         }
 
-        return tokens; // Almacenamos la lista permanentemente.
+        return tokens; // Almacena la lista permanentemente.
     }
 }

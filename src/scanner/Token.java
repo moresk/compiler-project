@@ -1,7 +1,10 @@
 package scanner;
 
 /**
- * Contiene toda la informacion referente al token.
+ * Informacion referente al token.
+ *
+ * - Type: Tipo de token.
+ * - Data: Lexema del token.
  *
  * @author Mario
  * @version 1.0
@@ -26,11 +29,10 @@ public class Token
         public static final int LBC = '}';
         public static final int RBK = '[';
         public static final int LBK = ']';
-        public static final int PLUS = '+';
-        public static final int MIN = '-';
-        public static final int APOS = '\'';
+        public static final int RPS = '(';
+        public static final int LPS = ')';
         public static final int DEF = 1000;
-        public static final int NUM = 1001;
+        public static final int TERML = 1001;
         public static final int VAR = 1002;
     }
 
