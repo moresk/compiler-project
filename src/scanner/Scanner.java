@@ -25,9 +25,14 @@ public class Scanner
      */
     public static void main(String[] args)
     {
-        for (Token token : Lexer.getTokens(".;&|{}[]()::='a'<a>"))
-        {
-            System.out.println(token.toString());
-        }
+        Parser parser = new Parser();
+        parser.parse
+        (   Lexer.getTokens
+            (
+"<Entero>::={{['+'|'-']&<Variable1>}&(['+'|'-'])&{<Variable2>}}&{['+'|'-']&<Variable3>};"
+            )
+        );
+
+        System.out.println(parser.getOutput());
     }
 }

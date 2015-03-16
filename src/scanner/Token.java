@@ -25,10 +25,10 @@ public class Token
         public static final int END = ';';
         public static final int AND = '&';
         public static final int OR = '|';
-        public static final int RBC = '{';
-        public static final int LBC = '}';
-        public static final int RBK = '[';
-        public static final int LBK = ']';
+        public static final int RBC = '}';
+        public static final int LBC = '{';
+        public static final int RBK = ']';
+        public static final int LBK = '[';
         public static final int RPS = '(';
         public static final int LPS = ')';
         public static final int DEF = 1000;
