@@ -23,6 +23,9 @@ public class Lexer
      */
     public static ArrayList<Token> getTokens(String input)
     {
+        // Eliminamos los espacios en blanco
+        input = input.replaceAll("\\s", "");
+
         // Almacena la lista de tokens temporalmente.
         ArrayList<Token> tokens = new ArrayList<>();
 
