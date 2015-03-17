@@ -3,8 +3,24 @@ package scanner;
 import java.util.ArrayList;
 
 /**
+ * Analizador sintactico.
+ *
+ * Analiza y verifica que el grupo de tokens sea valido
+ * en base a la siguiente semantica del lenguaje.
+ *
+ * <ul>
+ *     <li>prog - conj</li>
+ *     <li>conj - conj | prod</li>
+ *     <li>prod - var DEF expr;</li>
+ *     <li>expr - expr ALT term | term</li>
+ *     <li>term - term & fact | fact</li>
+ *     <li>fact - {expr} | [expr] | prim</li>
+ *     <li>prim - (expr) | var | term</li>
+ * </ul>
  *
  * @author Mario
+ * @version 1.0
+ * @since 16/03/15
  */
 public class Parser
 {
@@ -13,8 +29,23 @@ public class Parser
     private int next = 0;
     private Token currentToken;
 
-    private String output;
+    private String output = "";
 
+    /**
+     * Obtiene la salida del analizador.
+     *
+     * @return La salida del analizador.
+     */
+    public String getOutput()
+    {
+        return output;
+    }
+
+    /**
+     * Inicia el analisis.
+     *
+     * @param tokens Grupo de tokens a analizar.
+     */
     public void parse(ArrayList<Token> tokens)
     {
         this.tokens = tokens;
@@ -22,16 +53,34 @@ public class Parser
         prod();
     }
 
+    /**
+     * Verifica que la produccion este formada de la siguiente forma.
+     *
+     * <ul>
+     *      <li>var::=expr;</li>
+     * </ul>
+     */
     private void prod()
     {
-        prim();
+        if (currentToken.getType() == Token.Type.VAR)
+        {
+            output = String.format("%s%s", output, currentToken.getData());
+        }
+        else
+        {
+            throw new Error
+            (   "Error de sintaxis. "
+              + "Toda produccion debe de iniciar con una variable."
+            );
+        }
 
         currentToken = tokens.get(next++);
         if (currentToken.getType() == Token.Type.DEF)
         {
             currentToken = tokens.get(next++);
             expr();
-            output = String.format("%s%s", output, Token.Type.DEF);
+
+            output = String.format("%s%s", output, "::=");
         }
         else
         {
@@ -42,57 +91,70 @@ public class Parser
         {
             throw new Error
             (   String.format
-                (   "Error de sintaxis. Se esperaba: %s",
-                    (char) Token.Type.END
+                (   "Error de sintaxis. Se tiene: %s ~~~ Se esperaba: %s",
+                    currentToken.getData(), (char) Token.Type.END
                 )
             );
         }
     }
 
+    /**
+     * Verifica que la exprecion este formada por alguna de las sig formas.
+     *
+     * <ul>
+     *      <li>expr | term</li>
+     *      <li>term</li>
+     * </ul>
+     */
     private void expr()
     {
         term();
 
-        if (currentToken.getType() == Token.Type.OR)
+        while (currentToken.getType() == Token.Type.OR)
         {
-            output = String.format("%s%s", output, Token.Type.OR);
-        }
-        else
-        {
-            throw new Error
-            (   String.format
-                (   "Error de sintaxis. Se esperaba: %s",
-                    (char) Token.Type.OR
-                )
-            );
+            currentToken = tokens.get(next++);
+            expr();
+
+            output = String.format("%s%s", output, (char) Token.Type.OR);
         }
     }
 
+    /**
+     * Verifica que el termino este formado por alguna de las sig formas.
+     *
+     * <ul>
+     *      <li>term & fact</li>
+     *      <li>fact</li>
+     * </ul>
+     */
     private void term()
     {
         fact();
 
-        if (currentToken.getType() == Token.Type.AND)
+        currentToken = tokens.get(next++);
+        while (currentToken.getType() == Token.Type.AND)
         {
-            output = String.format("%s%s", output, Token.Type.AND);
-        }
-        else
-        {
-            throw new Error
-            (   String.format
-                (   "Error de sintaxis. So tiene: %s ~~~ Se esperaba: %s",
-                    currentToken.getData(), (char) Token.Type.AND
-                )
-            );
+            output = String.format("%s%s", output, (char) Token.Type.AND);
+
+            currentToken = tokens.get(next++);
+            term();
         }
     }
 
+    /**
+     * Verifica que el factor este formado por alguna de las sig formas.
+     *
+     * <ul>
+     *      <li>{expr}</li>
+     *      <li>[expr]</li>
+     *      <li>prim</li>
+     * </ul>
+     */
     private void fact()
     {
         if (currentToken.getType() == Token.Type.LBC)
         {
             currentToken = tokens.get(next++);
-
             expr();
 
             if (currentToken.getType() == Token.Type.RBC)
@@ -103,8 +165,8 @@ public class Parser
             {
                 throw new Error
                 (   String.format
-                    (   "Error de sintaxis. Se esperaba: %s",
-                        (char) Token.Type.RBC
+                    (   "Error de sintaxis. Se tiene: %s ~~~ Se esperaba: %s",
+                        currentToken.getData(), (char) Token.Type.RBC
                     )
                 );
             }
@@ -112,7 +174,6 @@ public class Parser
         else if (currentToken.getType() == Token.Type.LBK)
         {
             currentToken = tokens.get(next++);
-
             expr();
 
             if (currentToken.getType() == Token.Type.RBK)
@@ -123,8 +184,8 @@ public class Parser
             {
                 throw new Error
                 (   String.format
-                    (   "Error de sintaxis. Se esperaba: %s",
-                        (char) Token.Type.RBK
+                    (   "Error de sintaxis. Se tiene: %s ~~~ Se esperaba: %s",
+                        currentToken.getData(), (char) Token.Type.RBK
                     )
                 );
             }
@@ -135,12 +196,20 @@ public class Parser
         }
     }
 
+    /**
+     * Verifica que el primario este formado por alguna de las sig formas.
+     *
+     * <ul>
+     *      <li>(expr)</li>
+     *      <li>var</li>
+     *      <li>terml</li>
+     * </ul>
+     */
     private void prim()
     {
         if (currentToken.getType() == Token.Type.LPS)
         {
             currentToken = tokens.get(next++);
-
             expr();
 
             if (currentToken.getType() == Token.Type.RPS)
@@ -151,8 +220,8 @@ public class Parser
             {
                 throw new Error
                 (   String.format
-                    (   "Error de sintaxis. Se esperaba: %s",
-                        (char) Token.Type.RPS
+                    (   "Error de sintaxis. Se tiene: %s ~~~ Se esperaba: %s",
+                        currentToken.getData(), (char) Token.Type.RPS
                     )
                 );
             }
@@ -165,13 +234,12 @@ public class Parser
         else
         {
             throw new Error
-            (   "Error de sintaxis. Se esperaba: '(' || 'VAR' || 'TERML'."
+            (   String.format
+                (   "Error de sintaxis. Se tiene: %s ~~~ "
+                  + "Se esperaba: '(' || 'VAR' || 'TERML'.",
+                    currentToken.getData()
+                )
             );
         }
-    }
-
-    public String getOutput()
-    {
-        return output;
     }
 }
