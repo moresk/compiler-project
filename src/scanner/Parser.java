@@ -9,7 +9,7 @@ import java.util.ArrayList;
  * en base a la siguiente semantica del lenguaje.
  *
  * <ul>
- *     <li>prog - conj</li>
+ *     <li>prog - conj .</li>
  *     <li>conj - conj | prod</li>
  *     <li>prod - var DEF expr;</li>
  *     <li>expr - expr ALT term | term</li>
