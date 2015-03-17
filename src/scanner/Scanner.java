@@ -1,5 +1,7 @@
 package scanner;
 
+import java.io.*;
+
 /**
  * Clase principal del analizador.
  *
@@ -19,11 +21,57 @@ public class Scanner
         Parser parser = new Parser();
         parser.parse
         (   Lexer.getTokens
-            (
-"<Entero>::= { { ['+'|'-'] & <Variable1> } & (['+'|'-']) & {<Variable2>} } & { ['+'|'-'] & <Variable3> } ;"
+            (   getInputFrom("input")
             )
         );
 
         System.out.println(parser.getOutput());
+    }
+
+    /**
+     * Obtiene la cadena de caracteres de un archivo.
+     *
+     * @param file Nombre del archivo.
+     * @return Cadena de caracteres.
+     */
+    private static String getInputFrom(String file)
+    {
+        String text = "";
+        FileReader rfile = null;
+        String line = "";
+
+        try
+        {
+            rfile = new FileReader(file);
+            BufferedReader buff = new BufferedReader(rfile);
+            while ((line = buff.readLine()) != null)
+            {
+                text = String.format("%s%s", text, line);
+            }
+        }
+        catch (FileNotFoundException ex)
+        {
+            throw new RuntimeException("Archivo no encontrado!");
+        }
+        catch (IOException ex)
+        {
+            throw new RuntimeException("Error de entrada/saladia!");
+        }
+        finally
+        {
+            if (rfile != null)
+            {
+                try
+                {
+                    rfile.close();
+                }
+                catch (IOException ex)
+                {
+                    throw new RuntimeException("Error al cerrar el archivo!");
+                }
+            }
+        }
+
+        return text;
     }
 }

@@ -50,7 +50,50 @@ public class Parser
     {
         this.tokens = tokens;
         currentToken = tokens.get(next++);
+        prog();
+    }
+
+    /**
+     * Verifica que el programa este formado de la siguiente forma.
+     *
+     * <ul>
+     *      <li>conj.</li>
+     * </ul>
+     */
+    private void prog()
+    {
+        conj();
+
+        if (currentToken.getType() != Token.Type.EOF)
+        {
+            throw new Error
+            (   String.format
+                (   "Error de sintaxis. Se tiene: %s ~~~ Se esperaba: %s",
+                    currentToken.getData(), (char) Token.Type.EOF
+                )
+            );
+        }
+    }
+
+    /**
+     * Verifica que el conjunto este formado por una o mas producciones.
+     */
+    private void conj()
+    {
         prod();
+
+        while (currentToken.getType() == Token.Type.END)
+        {
+            output = String.format("%s\n", output);
+
+            currentToken = tokens.get(next++);
+            if (currentToken.getType() == Token.Type.EOF)
+            {
+                break;
+            }
+
+            prod();
+        }
     }
 
     /**
@@ -85,16 +128,6 @@ public class Parser
         else
         {
             throw new Error("Error de sintaxis. Se esperaba: ::=");
-        }
-
-        if (currentToken.getType() != Token.Type.END)
-        {
-            throw new Error
-            (   String.format
-                (   "Error de sintaxis. Se tiene: %s ~~~ Se esperaba: %s",
-                    currentToken.getData(), (char) Token.Type.END
-                )
-            );
         }
     }
 
