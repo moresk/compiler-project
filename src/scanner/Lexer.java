@@ -46,7 +46,7 @@ public class Lexer
             {
                 // Verifica que se trate de una definicion.
                 if (input.charAt(i) == ':'
-                 && (i + 2) <= input.length() // Asegura 3 caracteres.
+                 && (i + 3) <= input.length() // Asegura 3 caracteres.
                  && input.charAt(i + 1) == ':'
                  && input.charAt(i + 2) == '=')
                 {
