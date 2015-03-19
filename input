@@ -1,3 +1,1 @@
-<Entero>::= { { ['+'|'-'] & <Variable1> } & (['+'|'-']) & {<Variable2>} } & { ['+'|'-'] & <Variable3> } ;
-<Entero>::= { { ['+'|'-'] & <Variable1> } & (['+'|'-']) & {<Variable2>} } & { ['+'|'-'] & <Variable3> } ;
-.
+<Entero>::= { { ['+'|'-'] & <Variable1> } & (['+'|'-']) & {<Variable2>} } & { ['+'|'-'] & <Variable3> } ; .
