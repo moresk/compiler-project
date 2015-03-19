@@ -5,17 +5,14 @@ import java.util.ArrayList;
 import static org.junit.Assert.*;
 
 /**
+ * Realiza las pruebas al analizador lexico.
  *
  * @author Mario
+ * @version 1.0
+ * @since 18/03/15
  */
 public class LexerUnitTest
 {
-    @Test
-    public void testNullToken()
-    {
-        assertTrue(Lexer.getTokens("").isEmpty());
-    }
-
     @Test
     public void testAllTokens()
     {
@@ -60,6 +57,32 @@ public class LexerUnitTest
             Lexer.getTokens("\'1t!@#$%^&*()-+=::=\\erm2\'").get(0);
         assertEquals(term.getData(), "\'1t!@#$%^&*()-+=::=\\erm2\'");
         assertEquals(term.getType(), Token.Type.TERML);
+    }
+
+    @Test
+    public void testIncGroup()
+    {
+        try
+        {
+            Lexer.getTokens("<a");
+            assertTrue(false);
+        }
+        catch (Error e)
+        {
+            try
+            {
+                Lexer.getTokens("\'b");
+                assertTrue(false);
+            }
+            catch (Error ee)
+            {
+                assertTrue(true);
+            }
+        }
+        catch (Exception ex)
+        {
+            assertTrue(false);
+        }
     }
 
     @Test
